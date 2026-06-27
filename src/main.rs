@@ -1,10 +1,8 @@
-use secp256k1::{Secp256k1, Message};
-use sha2::{Sha256, Digest};
-// For printing byte arrays as readable hex strings
-use hex;
+use secp256k1::{Secp256k1, Message}; // Crypto key generator for ECDSA (Eliptic Curve Digital Signature Algorithm)
+use sha2::{Sha256, Digest}; // Hashing library
 
 fn main() {
-    let secp = Secp256k1::new();
+    let secp = Secp256k1::new(); // Initialized new secp256k1 engine context()
     let (secret_key, public_key) = secp.generate_keypair(&mut secp256k1::rand::rngs::OsRng);
 
     println!("KEYPAIR ");
@@ -30,7 +28,7 @@ fn main() {
 
     //Pass back the data to the graph to get signature.
     // This is z in the formula: sig = Fsig(z, x)
-    let msg = Message::from_slice(&second_hash).expect("64 bytes");
+    let msg = Message::from_slice(&second_hash).expect("Should be 32 bytes"); // expect method defines error message not settings
     // The signature is the pair (r, s)
     let signature = secp.sign_ecdsa(&msg, &secret_key);
     // DER-encode the signature (how Bitcoin serializes signatures on-chain)
@@ -52,9 +50,9 @@ fn main() {
     // Tamper test  change the message and try to verify 
     // A completely different hash means R'.x will NOT equal r → verification fails
     let tampered_text = "Send 5.0 BTC to Eve"; 
-    let t1 = Sha256::digest(tampered_text.as_bytes());
+    let t1 = Sha256::digest(tampered_text.as_bytes()); // Not necessary to change to byte. Ingest all data types
     let t2 = Sha256::digest(&t1);
-    let tampered_msg = Message::from_slice(&t2).expect("32 bytes");
+    let tampered_msg = Message::from_slice(&t2).expect("Should be 32 bytes"); // expect method defines error message not settings
 
     println!("\n TAMPER TEST ");
     println!("Tampered message : {}", tampered_text);
